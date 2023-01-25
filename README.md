@@ -9,6 +9,18 @@ Daten direkt herunterladen unter: https://www.internetwache-polizei-berlin.de/vd
 Presse: https://www.golem.de/news/berlin-polizei-testet-open-data-gegen-fahrradklau-2109-159424.html
 
 
+Playlist zur YT Reihe:
+https://www.youtube.com/watch?v=1m91s9xDNU4&list=PLva9kPwWCvPsdjlBuG8HgArZ2BlXRiPH2
+
+### Third Parties
+Wir benutzen das Template von StarAdmin2:
+https://github.com/BootstrapDash/star-admin2-free-admin-template
+
+Die verwendeten Icons sind von:
+https://pictogrammers.com/library/mdi/
+
+
+
 ---
 
 # Bicycle theft Berlin
