@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}{% load static %}
+{% block title %}Fahrraddiebstahl Berlin{% endblock title %}
+{% block content %}
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Aktuelle Diebstahldaten</h4>
+                <p class="card-description">
+                    Das ist ein Auszug der neuesten Diebstahldaten der Polizei Berlin.
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Erstellt am</th>
+                            <th>Tatzeit Anfang</th>
+                            <th>Tatzeit Ende</th>
+                            <th>LOR</th>
+                            <th>Schadenshöhe</th>
+                            <th>Versuch</th>
+                            <th>Fahrradtyp</th>
+                            <th>Delikt</th>
+                            <th>Erfassungsgrund</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for report in object_list %}
+                            <tr>
+                                <td>{{ report.createdDay }}</td>
+                                <td>{{ report.beginDay }} {{ report.beginHour }}:00 Uhr</td>
+                                <td>{{ report.endDay }} {{ report.endHour }}:00 Uhr </td>
+                                <td>{{ report.lor }} </td>
+                                <td>{{ report.damageValue }} €</td>
+                                <td>{{ report.tryBike }} </td>
+                                <td>{{ report.typeOfBike }} </td>
+                                <td>{{ report.delict }} </td>
+                                <td>{{ report.reason }} </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">Die Daten für gestern werden erst um 12:00 Uhr veröffentlicht.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "data/snippets/pagination.html" %}
+{% endblock content %}
+
+

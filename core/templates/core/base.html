@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content=„TODO“>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content=„TODO“>
+
+    <link rel="stylesheet" href="{% static "css/style.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/materialdesignicons.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/simple-line-icons.css" %}"/>
+    {% block headers %}{% endblock headers %}
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body class="sidebar-light">
+<div class="container-scroller">
+    {% include "core/navbar.html" %}
+    <div class="container-fluid page-body-wrapper">
+        {% include "core/sidebar.html" %}
+
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% block content %}{% endblock content %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
