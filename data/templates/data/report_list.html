@@ -28,13 +28,13 @@
                             <tr>
                                 <td>{{ report.createdDay }}</td>
                                 <td>{{ report.beginDay }} {{ report.beginHour }}:00 Uhr</td>
-                                <td>{{ report.endDay }} {{ report.endHour }}:00 Uhr </td>
-                                <td>{{ report.lor }} </td>
+                                <td>{{ report.endDay }} {{ report.endHour }}:00 Uhr</td>
+                                <td>{{ report.lor }}</td>
                                 <td>{{ report.damageValue }} €</td>
-                                <td>{{ report.tryBike }} </td>
-                                <td>{{ report.typeOfBike }} </td>
-                                <td>{{ report.delict }} </td>
-                                <td>{{ report.reason }} </td>
+                                <td>{{ report.tryBike }}</td>
+                                <td>{{ report.typeOfBike }}</td>
+                                <td>{{ report.delict }}</td>
+                                <td>{{ report.reason }}</td>
                             </tr>
                         {% empty %}
                             <tr>
@@ -49,5 +49,3 @@
     </div>
     {% include "data/snippets/pagination.html" %}
 {% endblock content %}
-
-
