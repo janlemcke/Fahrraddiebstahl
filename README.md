@@ -19,6 +19,9 @@ https://github.com/BootstrapDash/star-admin2-free-admin-template
 Die verwendeten Icons sind von:
 https://pictogrammers.com/library/mdi/
 
+Die API basiert auf Django Ninja:
+https://django-ninja.rest-framework.com/
+
 
 
 ---
@@ -28,6 +31,16 @@ https://pictogrammers.com/library/mdi/
 This little Django webapp visualizes Berlin police data of bicycle thefts in Berlin. The data is published daily at 12:00 by the Berlin Police Ias part of the Open Data Initiative.
 
 More information about the data: https://daten.berlin.de/datensaetze/fahrraddiebstahl-berlin
+
+### Third Parties
+Wir benutzen das Template von StarAdmin2:
+https://github.com/BootstrapDash/star-admin2-free-admin-template
+
+Die verwendeten Icons sind von:
+https://pictogrammers.com/library/mdi/
+
+Die API basiert auf Django Ninja:
+https://django-ninja.rest-framework.com/
 
 Download data directly at: https://www.internetwache-polizei-berlin.de/vdb/Fahrraddiebstahl.csv
 
