@@ -58,19 +58,19 @@
                                     <div class="card-body">
                                         <div class="d-sm-flex justify-content-between align-items-start">
                                             <div>
-                                                <h4 class="card-title card-title-dash">Geschätzte Schadenshöhe</h4>
-                                                <p class="card-subtitle card-subtitle-dash">Die Schadenshöhe wird auf die Stunden des Tatzeitraums aufgeteilt.</p>
+                                                <h4 class="card-title card-title-dash">Gemeldete Schadenshöhe</h4>
+                                                <p class="card-subtitle card-subtitle-dash">Die Schadenshöhe pro Tag, an dem sie gemeldet wurde.</p>
                                             </div>
                                             <div id="performance-line-legend">
                                                 <div class="chartjs-legend">
                                                     <ul>
-                                                        <li><span style="background-color:#1F3BB3"></span>This week</li>
-                                                        <li><span style="background-color:#52CDFF"></span>Last week</li>
+                                                        <li><span style="background-color:#1F3BB3"></span>Aktuelle Woche</li>
+                                                        <li><span style="background-color:#52CDFF"></span>Letzte Woche</li>
                                                     </ul>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="chartjs-wrapper mt-5">
+                                        <div class="chartjs-wrapper mt-4">
                                             <div class="chartjs-size-monitor">
                                                 <div class="chartjs-size-monitor-expand">
                                                     <div class=""></div>
@@ -650,6 +650,20 @@
             </div>
         </div>
     </div>
+    <script src="{% static 'js/chart.min.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script>
+        fetch('/api/damageComparison')
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                drawComparisonLines(data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+    </script>
 {% endblock content %}
 
 

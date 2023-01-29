@@ -8,6 +8,7 @@ from data.models import Report
 # Create your views here.
 class DataListView(ListView):
     model = Report
+    ordering = "created_at"
     paginate_by = 25
 
     def get_queryset(self):

@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class Report(models.Model):
     BIKE_TYPES = [("HF", "Herrenfahrrad"), ("FF", "Fahrrad"), ("DF", "Damenfahrrad"), ("MB", "Mountainbike"),
                   ("RB", "Rennrad"), ("KF", "Kinderfahrrad"), ("LF", "Lastenfahrrad"), ("DF", "diverse Fahrräder")]
