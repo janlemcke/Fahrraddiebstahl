@@ -12,7 +12,7 @@ api = NinjaAPI(csrf=True)
 
 
 @api.get("/damageComparison")
-def hello(request):
+def getDamageComparison(request):
     # Get the current week
     now = timezone.now()
     current_week_start = now - timezone.timedelta(days=now.weekday())
