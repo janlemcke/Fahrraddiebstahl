@@ -1,7 +1,7 @@
 import hashlib
 from django.core.management.base import BaseCommand
 import pandas as pd
-
+import tqdm
 from data.models import Report
 
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         csv["TATZEIT_ANFANG_DATUM"] = csv["TATZEIT_ANFANG_DATUM"].apply(convert_to_us_date)
         csv["TATZEIT_ENDE_DATUM"] = csv["TATZEIT_ENDE_DATUM"].apply(convert_to_us_date)
 
-        for i, row in csv.iterrows():
+        for i, row in tqdm.tqdm(csv.iterrows(), total=csv.shape[0]):
             lor = str(row["LOR"])
             if len(lor) < 8:
                 lor = lor.zfill(8)
