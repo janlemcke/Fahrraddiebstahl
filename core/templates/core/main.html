@@ -59,13 +59,16 @@
                                         <div class="d-sm-flex justify-content-between align-items-start">
                                             <div>
                                                 <h4 class="card-title card-title-dash">Gemeldete Schadenshöhe</h4>
-                                                <p class="card-subtitle card-subtitle-dash">Die Schadenshöhe pro Tag, an dem sie gemeldet wurde.</p>
+                                                <p class="card-subtitle card-subtitle-dash">Die Schadenshöhe pro Tag, an
+                                                    dem sie gemeldet wurde.</p>
                                             </div>
                                             <div id="performance-line-legend">
                                                 <div class="chartjs-legend">
                                                     <ul>
-                                                        <li><span style="background-color:#1F3BB3"></span>Aktuelle Woche</li>
-                                                        <li><span style="background-color:#52CDFF"></span>Letzte Woche</li>
+                                                        <li><span style="background-color:#1F3BB3"></span>Aktuelle Woche
+                                                        </li>
+                                                        <li><span style="background-color:#52CDFF"></span>Letzte Woche
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -190,9 +193,9 @@
                                     <div class="card-body">
                                         <div class="d-sm-flex justify-content-between align-items-start">
                                             <div>
-                                                <h4 class="card-title card-title-dash">Diebstahl Übersicht</h4>
-                                                <p class="card-subtitle card-subtitle-dash">Lorem ipsum dolor sit amet
-                                                    consectetur adipisicing elit</p>
+                                                <h4 class="card-title card-title-dash">Schadenshöhe / Stunde</h4>
+                                                <p class="card-subtitle card-subtitle-dash">Schadenshöhe auf ihre
+                                                    vermuteten Tatzeiträume verteilt.</p>
                                             </div>
                                             <div>
                                                 <div class="dropdown">
@@ -221,17 +224,18 @@
                                                     <div class="chartjs-legend">
                                                         <ul>
                                                             <li class="text-muted text-small"><span
-                                                                    style="background-color:#52CDFF"></span>Last week
+                                                                    style="background-color:#52CDFF"></span>Letzte Woche
                                                             </li>
                                                             <li class="text-muted text-small"><span
-                                                                    style="background-color:#1F3BB3"></span>This week
+                                                                    style="background-color:#1F3BB3"></span>Aktuelle
+                                                                Woche
                                                             </li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="chartjs-bar-wrapper mt-3">
+                                        <div class="chartjs-wrapper mt-4">
                                             <div class="chartjs-size-monitor">
                                                 <div class="chartjs-size-monitor-expand">
                                                     <div class=""></div>
@@ -240,9 +244,31 @@
                                                     <div class=""></div>
                                                 </div>
                                             </div>
-                                            <canvas id="marketingOverview"
+                                            <canvas id="damageValuePerHour"
                                                     style="display: block; height: 150px; width: 695px;"
                                                     class="chartjs-render-monitor" width="1390" height="300"></canvas>
+                                        </div>
+                                        <div class="card-subtitle card-subtitle-dash text-small mt-3">
+                                            <p>Die
+                                                Graphik
+                                                bildet die
+                                                Schadenshöhe auf die
+                                                Stunden ab, die
+                                                den <b>Tatzeitraum</b> darstellen. Zwei Beispiele:
+                                            <ol>
+                                                <li>
+                                                    Tatzeitraum 15.08.2021 11:00 bis 15.08.2021 13:00 -->
+                                                    Die
+                                                    Schadenshöhe wird gleichmäßig auf diese 3 Stunden
+                                                    verteilt.
+                                                </li>
+                                                <li>
+                                                    Tatzeitraum 15.08.2021 11:00 bis 17.08.2021 13:00 -->
+                                                    Die
+                                                    Schadenshöhe wird gleichmäßig auf 50 Stunden verteilt.
+                                                </li>
+                                            </ol>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -658,6 +684,16 @@
             .then((data) => {
                 console.log(data);
                 drawComparisonLines(data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+        fetch('/api/damageValuePerHour')
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                drawDamageValuePerHourLines(data);
             })
             .catch(function (error) {
                 console.log(error);

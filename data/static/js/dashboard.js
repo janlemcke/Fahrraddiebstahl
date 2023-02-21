@@ -64,11 +64,11 @@ function drawComparisonLines(data) {
                 tension: 0.4,
             }
         },
-        plugins:{
+        plugins: {
             legend: false,
             tooltip: {
                 callbacks: {
-                    label: function(context) {
+                    label: function (context) {
                         return context.parsed.y + " €";
                     }
                 }
@@ -79,5 +79,78 @@ function drawComparisonLines(data) {
         type: 'line',
         data: comparisonData,
         options: comparisonOptions
+    });
+}
+
+function drawDamageValuePerHourLines(data) {
+    let graphGradient = document.getElementById("damageValuePerHour").getContext('2d');
+    const dataToPlot = {
+        labels: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"],
+        datasets: [{
+            label: 'Aktuelle Woche',
+            data: data["current_week_data"],
+            borderColor: '#1F3BB3',
+            borderWidth: 1.5,
+            pointBorderWidth: 1,
+            pointRadius: 4,
+            pointHoverRadius: 2,
+            pointBackgroundColor: '#1F3BB3',
+            pointBorderColor: '#fff',
+        }, {
+            label: 'Letzte Woche',
+            data: data["last_week_data"],
+            borderColor: '#52CDFF',
+            borderWidth: 1.5,
+            pointBorderWidth: 1,
+            pointRadius: 4,
+            pointHoverRadius: 2,
+            pointBackgroundColor: '#52CDFF',
+            pointBorderColor: '#fff',
+        }]
+    };
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    display: true,
+                    drawBorder: false,
+                    color: "#F0F0F0",
+                    zeroLineColor: '#F0F0F0',
+                },
+                ticks: {
+                    count: 5
+                }
+            },
+            x: {
+                grid: {
+                    display: false,
+                    drawBorder: false,
+                },
+            },
+        },
+        elements: {
+            line: {
+                // makes line curvy
+                tension: 0.4,
+            }
+        },
+        plugins: {
+            legend: false,
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return context.parsed.y + " €";
+                    }
+                }
+            }
+        }
+    };
+    new Chart(graphGradient, {
+        type: 'line',
+        data: dataToPlot,
+        options: options,
     });
 }
