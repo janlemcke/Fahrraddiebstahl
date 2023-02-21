@@ -24605,7 +24605,7 @@ dl {
 ul li,
 ol li,
 dl li {
-  line-height: 1.8;
+  line-height: 1.2;
 }
 
 .list-ticked,
@@ -26189,16 +26189,6 @@ dl li {
 
 .list-wrapper ul li .form-check.w-100 {
   max-width: 100%;
-}
-
-.list-wrapper ul li:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
-.list-wrapper ul li:last-child .form-check {
-  margin-bottom: 0;
-  padding-bottom: 0;
 }
 
 .list-wrapper ul li .col-content {
