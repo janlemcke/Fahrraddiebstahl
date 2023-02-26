@@ -18,9 +18,18 @@ COMPARISON_TYPE_MAP = {
     "year": ("this_year", "last_year"),
 }
 
+COMPARISON_TYPE_LABEL_MAP = {
+    "day": ("Aktueller Tag", "Gestern"),
+    "week": ("Aktuelle Woche", "Letze Woche"),
+    "month": ("Aktueller Monat", "Letzter Monat"),
+    "year": ("Aktuelles Jahr", "Letztes Jahr"),
+}
+
+
 def get_comparison_date_range(comparison_type):
     now = timezone.now()
     if comparison_type == "yesterday":
+        #TODO get latest day for which we have data.
         start_date = now - timezone.timedelta(days=1)
         end_date = now
     elif comparison_type == "last_month":
@@ -48,10 +57,14 @@ def get_comparison_date_range(comparison_type):
     return start_date, end_date
 
 
-@api.get("/damageComparison")
-def get_damage_comparison(request) -> Response:
-    current_start, current_end = get_comparison_date_range("this_week")
-    last_start, last_end = get_comparison_date_range("last_week")
+@api.get("/damageComparison/{comparison_type}")
+def get_damage_comparison(request, comparison_type) -> Response:
+    current_comparison_type, last_comparison_type = COMPARISON_TYPE_MAP.get(comparison_type, (None, None))
+    if not current_comparison_type or not last_comparison_type:
+        return Response({"error": "Invalid comparison type parameter"}, status=400)
+
+    current_start, current_end = get_comparison_date_range(current_comparison_type)
+    last_start, last_end = get_comparison_date_range(last_comparison_type)
 
     # Query for current week
     current_data = Report.objects.filter(
@@ -74,28 +87,30 @@ def get_damage_comparison(request) -> Response:
 
     current_data = list(map(lambda x: x["damage_sum"], current_data))
     last_data = list(map(lambda x: x["damage_sum"], last_data))
-    return Response({"current_data": current_data, "last_data": last_data})
+    return Response({"current_data": current_data,
+                     "last_data": last_data,
+                     "labels": COMPARISON_TYPE_LABEL_MAP[comparison_type]})
 
 
 def divide_damagevalue_per_hour(raw_data):
     """
         Divides the damage value in raw_data by the number of hours in the range
         and returns the average damage value per hour for each hour in a day.
-        """
-    converted_dataset = {hour: 0 for hour in range(24)}
+    """
+    converted_dataset = [hour for hour in range(24)]
+    print(converted_dataset)
     for data in raw_data:
-        day_difference = abs((data["beginDay"] - data["endDay"]).days) + 1
-        amount_of_hours = (day_difference - 1) * 24 + (data['endHour'] - data['beginHour'])
+        day_difference = (data["endDay"] - data["beginDay"]).days
+        amount_of_hours = day_difference * 24 + (data['endHour'] - data['beginHour'])
         if amount_of_hours != 0:
-            avg = round(data["damageValue"] / amount_of_hours, 2)
+            avg = data["damageValue"] / amount_of_hours
         else:
             avg = data["damageValue"]
 
         hours = [(data['beginHour'] + i) % 24 for i in range(amount_of_hours)]
         for hour in hours:
             converted_dataset[hour] += avg
-
-    return [round(value, 2) for value in converted_dataset.values()]
+    return list(map(lambda x: round(x, 2), converted_dataset))
 
 
 @api.get("/damageValuePerHour/{comparison_type}")
@@ -117,4 +132,6 @@ def get_damagevalue_per_hours(request, comparison_type: str) -> Response:
         'damageValue')
 
     return Response({"current_data": divide_damagevalue_per_hour(current_data),
-                     "last_data": divide_damagevalue_per_hour(last_data)})
+                     "last_data": divide_damagevalue_per_hour(last_data),
+                     "labels": COMPARISON_TYPE_LABEL_MAP[comparison_type]
+                     })
