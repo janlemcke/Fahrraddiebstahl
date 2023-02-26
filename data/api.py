@@ -29,7 +29,7 @@ COMPARISON_TYPE_LABEL_MAP = {
 def get_comparison_date_range(comparison_type):
     now = timezone.now()
     if comparison_type == "yesterday":
-        #TODO get latest day for which we have data.
+        # TODO get latest day for which we have data.
         start_date = now - timezone.timedelta(days=1)
         end_date = now
     elif comparison_type == "last_month":
