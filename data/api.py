@@ -1,36 +1,61 @@
-import datetime
-from typing import List
+import calendar
 
 from django.db.models import Sum
-from django.db.models.functions import TruncDay, ExtractWeekDay, ExtractIsoWeekDay
+from django.db.models.functions import ExtractIsoWeekDay
 from django.utils import timezone
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI
+from ninja.responses import Response
 
 from data.models import Report
 
 api = NinjaAPI(csrf=True)
 
+VALID_COMPARISON_TYPES = ["day", "week", "month", "year"]
+COMPARISON_TYPE_MAP = {
+    "day": ("yesterday", "day_before"),
+    "week": ("this_week", "last_week"),
+    "month": ("this_month", "last_month"),
+    "year": ("this_year", "last_year"),
+}
 
-def get_current_last_week_start_ends():
-    # Get the current week
+def get_comparison_date_range(comparison_type):
     now = timezone.now()
-    current_week_start = now - timezone.timedelta(days=now.weekday())
-    current_week_end = current_week_start + timezone.timedelta(days=6)
+    if comparison_type == "yesterday":
+        start_date = now - timezone.timedelta(days=1)
+        end_date = now
+    elif comparison_type == "last_month":
+        start_date = now - timezone.timedelta(days=now.day)
+        end_date = start_date + timezone.timedelta(days=calendar.monthrange(now.year, now.month - 1)[1])
+    elif comparison_type == "this_month":
+        start_date = now - timezone.timedelta(days=now.day - 1)
+        end_date = start_date + timezone.timedelta(days=calendar.monthrange(now.year, now.month)[1] - 1)
+    elif comparison_type == "last_week":
+        start_date = now - timezone.timedelta(days=now.weekday() + 7)
+        end_date = start_date + timezone.timedelta(days=6)
+    elif comparison_type == "this_week":
+        start_date = now - timezone.timedelta(days=now.weekday())
+        end_date = start_date + timezone.timedelta(days=6)
+    elif comparison_type == "last_year":
+        start_date = now - timezone.timedelta(days=now.timetuple().tm_yday + 365)
+        end_date = now - timezone.timedelta(days=now.timetuple().tm_yday + 1)
+    elif comparison_type == "this_year":
+        start_date = now - timezone.timedelta(days=now.timetuple().tm_yday - 1)
+        end_date = now
+    else:
+        start_date = None
+        end_date = None
 
-    # Get the last week
-    last_week_start = current_week_start - timezone.timedelta(days=7)
-    last_week_end = last_week_start + timezone.timedelta(days=6)
-
-    return current_week_start, current_week_end, last_week_start, last_week_end
+    return start_date, end_date
 
 
 @api.get("/damageComparison")
-def get_damage_comparison(request):
-    current_week_start, current_week_end, last_week_start, last_week_end = get_current_last_week_start_ends()
+def get_damage_comparison(request) -> Response:
+    current_start, current_end = get_comparison_date_range("this_week")
+    last_start, last_end = get_comparison_date_range("last_week")
 
     # Query for current week
-    current_week_data = Report.objects.filter(
-        createdDay__range=(current_week_start, current_week_end)
+    current_data = Report.objects.filter(
+        createdDay__range=(current_start, current_end)
     ).annotate(
         # Return Monday=1 through Sunday=7, based on ISO-8601.
         week_day=ExtractIsoWeekDay('createdDay')
@@ -39,59 +64,57 @@ def get_damage_comparison(request):
     )
 
     # Query for last week
-    last_week_data = Report.objects.filter(
-        createdDay__range=(last_week_start, last_week_end)
+    last_data = Report.objects.filter(
+        createdDay__range=(last_start, last_end)
     ).annotate(
         week_day=ExtractIsoWeekDay('createdDay')
     ).values('week_day').annotate(
         damage_sum=Sum('damageValue')
     )
 
-    current_week_data = list(map(lambda x: x["damage_sum"], current_week_data))
-    last_week_data = list(map(lambda x: x["damage_sum"], last_week_data))
-    return {"current_week_data": current_week_data, "last_week_data": last_week_data}
+    current_data = list(map(lambda x: x["damage_sum"], current_data))
+    last_data = list(map(lambda x: x["damage_sum"], last_data))
+    return Response({"current_data": current_data, "last_data": last_data})
 
 
 def divide_damagevalue_per_hour(raw_data):
-    convertedDataset = [0] * 24
-    for i in raw_data:
-        dayDifference = abs((i["beginDay"] - i["endDay"]).days)
-        if dayDifference > 1:
-            tmpDays = [0] * dayDifference * 24
-            amountOfHours = (i['endHour'] - i['beginHour']) % 24
-            amountOfHours += (dayDifference - 1) * 24
-            if amountOfHours != 0:
-                avg = round(i["damageValue"] / amountOfHours, 2)
-            else:
-                avg = i["damage"]
-
-            for j in range(i["beginHour"], i["beginHour"] + amountOfHours):
-                tmpDays[j % (24 * dayDifference)] += avg
-
-            for k in range(0, len(tmpDays)):
-                convertedDataset[k % 24] += tmpDays[k]
+    """
+        Divides the damage value in raw_data by the number of hours in the range
+        and returns the average damage value per hour for each hour in a day.
+        """
+    converted_dataset = {hour: 0 for hour in range(24)}
+    for data in raw_data:
+        day_difference = abs((data["beginDay"] - data["endDay"]).days) + 1
+        amount_of_hours = (day_difference - 1) * 24 + (data['endHour'] - data['beginHour'])
+        if amount_of_hours != 0:
+            avg = round(data["damageValue"] / amount_of_hours, 2)
         else:
-            j = (i['endHour'] - i['beginHour']) % 24
-            if j != 0:
-                avg = round(i["damageValue"] / j, 2)
-            else:
-                avg = i["damageValue"]
-            for tmp in range(i['beginHour'], i['beginHour'] + j):
-                convertedDataset[tmp % 24] += avg
-    return list(map(lambda x: round(x,2), convertedDataset))
+            avg = data["damageValue"]
+
+        hours = [(data['beginHour'] + i) % 24 for i in range(amount_of_hours)]
+        for hour in hours:
+            converted_dataset[hour] += avg
+
+    return [round(value, 2) for value in converted_dataset.values()]
 
 
-@api.get("/damageValuePerHour")
-def get_damagevalue_per_hours(request):
-    current_week_start, current_week_end, last_week_start, last_week_end = get_current_last_week_start_ends()
-    current_week_data = Report.objects.filter(createdDay__range=(current_week_start, current_week_end)).values(
+@api.get("/damageValuePerHour/{comparison_type}")
+def get_damagevalue_per_hours(request, comparison_type: str) -> Response:
+    current_comparison_type, last_comparison_type = COMPARISON_TYPE_MAP.get(comparison_type, (None, None))
+    if not current_comparison_type or not last_comparison_type:
+        return Response({"error": "Invalid comparison type parameter"}, status=400)
+
+    current_start, current_end = get_comparison_date_range(current_comparison_type)
+    last_start, last_end = get_comparison_date_range(last_comparison_type)
+
+    current_data = Report.objects.filter(createdDay__range=(current_start, current_end)).values(
         'beginHour', 'endHour',
         'beginDay', 'endDay',
         'damageValue')
-    last_week_data = Report.objects.filter(createdDay__range=(last_week_start, last_week_end)).values(
+    last_data = Report.objects.filter(createdDay__range=(last_start, last_end)).values(
         'beginHour', 'endHour',
         'beginDay', 'endDay',
         'damageValue')
 
-    return {"current_week_data": divide_damagevalue_per_hour(current_week_data),
-            "last_week_data": divide_damagevalue_per_hour(last_week_data)}
+    return Response({"current_data": divide_damagevalue_per_hour(current_data),
+                     "last_data": divide_damagevalue_per_hour(last_data)})

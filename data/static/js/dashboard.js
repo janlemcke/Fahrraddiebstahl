@@ -11,7 +11,7 @@ function drawComparisonLines(data) {
         labels: ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
         datasets: [{
             label: 'Aktuelle Woche',
-            data: data["current_week_data"],
+            data: data["current_data"],
             backgroundColor: saleGradientBg,
             borderColor: '#1F3BB3',
             borderWidth: 1.5,
@@ -23,7 +23,7 @@ function drawComparisonLines(data) {
             pointBorderColor: '#fff',
         }, {
             label: 'Letzte Woche',
-            data: data["last_week_data"],
+            data: data["last_data"],
             backgroundColor: saleGradientBg2,
             borderColor: '#52CDFF',
             borderWidth: 1.5,
@@ -84,11 +84,15 @@ function drawComparisonLines(data) {
 
 function drawDamageValuePerHourLines(data) {
     let graphGradient = document.getElementById("damageValuePerHour").getContext('2d');
+    const chart = Chart.getChart(graphGradient);
+    if (chart) {
+        chart.destroy();
+    }
     const dataToPlot = {
         labels: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"],
         datasets: [{
             label: 'Aktuelle Woche',
-            data: data["current_week_data"],
+            data: data["current_data"],
             borderColor: '#1F3BB3',
             borderWidth: 1.5,
             pointBorderWidth: 1,
@@ -98,7 +102,7 @@ function drawDamageValuePerHourLines(data) {
             pointBorderColor: '#fff',
         }, {
             label: 'Letzte Woche',
-            data: data["last_week_data"],
+            data: data["last_data"],
             borderColor: '#52CDFF',
             borderWidth: 1.5,
             pointBorderWidth: 1,
@@ -153,4 +157,17 @@ function drawDamageValuePerHourLines(data) {
         data: dataToPlot,
         options: options,
     });
+}
+
+function onDateChange(select_element) {
+    const comparison_type = select_element.value;
+    fetch('/api/damageValuePerHour/' + comparison_type)
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            drawDamageValuePerHourLines(data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
